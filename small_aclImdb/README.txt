@@ -1,0 +1,1 @@
+A small subset of the dataset for testing purpuses. In total there are 400 test and 400 trainging reviews. 
