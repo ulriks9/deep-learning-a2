@@ -1,12 +1,11 @@
 import re
-from turtle import update
-import pandas as pd
-import numpy as np
+import copy
 from nltk.stem import SnowballStemmer
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import accuracy_score,confusion_matrix,classification_report
+
 
 from load_data import *
 
@@ -35,12 +34,17 @@ train_ds, test_ds = load_data()
 
 x_train, y_train = unpack_dataframe(train_ds)
 x_test, y_test = unpack_dataframe(test_ds)
+x_pre_transform = [text_batch.numpy() for text_batch, _ in test_ds] 
+
+for i in range(10):
+    print("\n{0} review:".format(y_train[i]))
+    print(x_train[i])
+
+
 
     
 cv=CountVectorizer()
 x_train = cv.fit_transform(x_train) 
-import copy
-x_pre_transform = copy.deepcopy(x_test)
 x_test = cv.transform(x_test) 
 
 clf=MultinomialNB()
@@ -55,3 +59,7 @@ prediction=clf.predict(x_test)
 conf_mat=confusion_matrix(y_test, prediction)
 print(conf_mat)
 print("Test Accuracy:"+str(accuracy_score(y_test,prediction)))
+
+for i in range(20):
+    if y_test[i] != prediction[i]:
+        print("\n{0}.) Should be {1}, but the model predicts {2}; for: {3}".format(i,y_test[i],prediction[i],x_pre_transform[i]))
