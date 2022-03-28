@@ -7,15 +7,24 @@ import tensorflow as tf
 import tensorflow_hub as hub
 import tensorflow_text as text
 import matplotlib.pyplot as plt
+import numpy as np
 
 from load_data import *
 
 tf.get_logger().setLevel('ERROR')
 
+INIT_RANDOMLY = False
+
 #small bert
 tfhub_handle_encoder = 'https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-2_H-128_A-2/1'
 #preprocessing for small bert
 tfhub_handle_preprocess = 'https://tfhub.dev/tensorflow/bert_en_uncased_preprocess/3'
+
+def reset_model(model):
+  weights = model.get_weights()
+  print(np.shape(weights))
+  weights = [np.random.normal(size=len(w.flat)).reshape(w.shape) for w in weights]
+  model.set_weights(weights)
 
 #preprocessing + bert + dropout + dense
 def build_classifier_model():
@@ -31,6 +40,8 @@ def build_classifier_model():
 
 #initialize
 classifier_model = build_classifier_model()
+if INIT_RANDOMLY:
+  reset_model(classifier_model)
 
 #train
 train_ds, test_ds = load_data(batch_size = 32)

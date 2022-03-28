@@ -4,7 +4,7 @@ from asyncio.windows_events import NULL
 from tensorflow.keras.utils import text_dataset_from_directory
 from tensorflow.data import AUTOTUNE
 
-DATA_PATH = "small_aclImdb"
+DATA_PATH = "aclImdb"
 
 def load_data(batch_size = None):
     raw_train_ds = text_dataset_from_directory(
