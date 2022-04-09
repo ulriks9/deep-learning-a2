@@ -3,7 +3,7 @@ from data import *
 import matplotlib.pyplot as plt
 import pickle
 
-EPOCHS = 100
+EPOCHS = 125
 
 # Plots the history and saves the plot
 def plot_history(history, filename):
@@ -32,16 +32,16 @@ def main():
     ds.download()
 
     train, val, test = ds.std_IMDB(batch_size=30)
-    model = BERT(train_length=train.cardinality().numpy(), epochs=EPOCHS, reset_weights=False)
+    # model = BERT(train_length=train.cardinality().numpy(), epochs=EPOCHS, reset_weights=False)
 
-    history = model.fit(x=train,
-                    validation_data=val,
-                    epochs=EPOCHS)
+    # history = model.fit(x=train,
+    #                 validation_data=val,
+    #                 epochs=EPOCHS)
     
-    with open('weights/bert_pre.pickle', 'wb') as f:
-        pickle.dump(model.get_weights(), f)
+    # with open('weights/bert_pre.pickle', 'wb') as f:
+    #     pickle.dump(model.get_weights(), f)
 
-    plot_history(history, 'bert_pre_trained.png')
+    # plot_history(history, 'bert_pre_trained.png')
 
     model = BERT(train_length=train.cardinality().numpy(), epochs=EPOCHS, reset_weights=True)
 

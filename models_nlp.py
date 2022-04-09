@@ -18,7 +18,7 @@ def BERT(train_length, reset_weights=True, epochs=100):
 
     # Using pooled outputs
     classifier = layers.Dropout(0.1)(pooled)
-    classifier = layers.Dense(100, kernel_regularizer=regularizers.L2(0.01))(classifier)
+    classifier = layers.Dense(100, kernel_regularizer=regularizers.L2(0.1))(classifier)
     classifier = layers.Dense(1, activation=None)(classifier)
 
     # Final model
