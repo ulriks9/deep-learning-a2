@@ -1,7 +1,7 @@
 import os
 import shutil
 import numpy as np
-from tensorflow.keras.utils import text_dataset_from_directory, get_file
+from keras.utils import text_dataset_from_directory, get_file
 from tensorflow.data import AUTOTUNE
 
 class DataSets:

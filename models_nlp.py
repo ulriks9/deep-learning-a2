@@ -5,7 +5,7 @@ from official.nlp import optimization
 import tensorflow_text as text
 import numpy as np
 
-def BERT(train_length, init_weights=True, epochs=100, init_lr=1e-4, warmup=0.1, l2_lambda=0.1, w_mean=0, w_std=0.5):
+def BERT(train_length, init_weights=True, epochs=100, init_lr=1e-4, warmup=0.1, l2_lambda=0.1, w_mean=0, w_std=0.5, dropout=0.2):
     # Inputs
     text_input = layers.Input(shape=(), dtype=string, name='text')
     # Pre-processor
@@ -17,7 +17,7 @@ def BERT(train_length, init_weights=True, epochs=100, init_lr=1e-4, warmup=0.1, 
     pooled = outputs["pooled_output"]
 
     # Using pooled outputs
-    classifier = layers.Dropout(0.1)(pooled)
+    classifier = layers.Dropout(dropout)(pooled)
     classifier = layers.Dense(100, kernel_regularizer=regularizers.L2(l2_lambda))(classifier)
     classifier = layers.Dense(1, activation=None)(classifier)
 
