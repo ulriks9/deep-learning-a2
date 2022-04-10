@@ -5,7 +5,7 @@ from official.nlp import optimization
 import tensorflow_text as text
 import numpy as np
 
-def BERT(train_length, reset_weights=True, epochs=100):
+def BERT(train_length, init_weights=True, epochs=100, init_lr=1e-4, warmup=0.1, l2_lambda=0.1, w_mean=0, w_std=0.5):
     # Inputs
     text_input = layers.Input(shape=(), dtype=string, name='text')
     # Pre-processor
@@ -18,7 +18,7 @@ def BERT(train_length, reset_weights=True, epochs=100):
 
     # Using pooled outputs
     classifier = layers.Dropout(0.1)(pooled)
-    classifier = layers.Dense(100, kernel_regularizer=regularizers.L2(0.1))(classifier)
+    classifier = layers.Dense(100, kernel_regularizer=regularizers.L2(l2_lambda))(classifier)
     classifier = layers.Dense(1, activation=None)(classifier)
 
     # Final model
@@ -28,9 +28,8 @@ def BERT(train_length, reset_weights=True, epochs=100):
     loss = losses.BinaryCrossentropy(from_logits=True)
     metric = metrics.BinaryAccuracy()
 
-    num_train_steps = train_length * epochs  
-    num_warmup_steps = 0.1 * num_train_steps
-    init_lr = 1e-4
+    num_train_steps = train_length * epochs
+    num_warmup_steps = warmup * num_train_steps
 
     optimizer = optimization.create_optimizer(init_lr=init_lr,
                                                 num_train_steps=num_train_steps,
@@ -42,9 +41,9 @@ def BERT(train_length, reset_weights=True, epochs=100):
                         loss=loss,
                         metrics=metric)
 
-    if reset_weights:
+    if init_weights:
         weights = model.get_weights()
-        weights = [np.random.normal(loc=0, scale=0.5, size=len(w.flat)).reshape(w.shape) for w in weights]
-        model.set_weights(weights)        
+        weights = [np.random.normal(loc=w_mean, scale=w_std, size=len(w.flat)).reshape(w.shape) for w in weights]
+        model.set_weights(weights)
 
     return model            

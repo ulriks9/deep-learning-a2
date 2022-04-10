@@ -1,9 +1,26 @@
 from models_nlp import *
 from data import *
+from keras import callbacks
 import matplotlib.pyplot as plt
 import pickle
+import time
 
-EPOCHS = 125
+EPOCHS = 150
+INIT_LR = 7e-3
+WARMUP = 0.1
+L2_LAMBDA = 0.1
+W_MEAN = 0
+W_STD = 0.5
+BATCH_SIZE = 50
+
+routine = ['scratch', 'pre']
+save_weights = True
+save_plot = True
+
+callback = callbacks.EarlyStopping(
+    monitor='val_binary_accuracy',
+    patience=10,
+)
 
 # Plots the history and saves the plot
 def plot_history(history, filename):
@@ -23,35 +40,56 @@ def plot_history(history, filename):
 
     plt.title("Model accuracy")
     plt.savefig('plots/' + filename)
-    plt.show()
+    plt.show(block=False)
 
 def main():
     ds = DataSets()
 
-    # UNCOMMENT THIS LINE AFTER FIRST RUN
-    ds.download()
+    if not os.path.exists('datasets'):
+        ds.download()
 
-    train, val, test = ds.std_IMDB(batch_size=30)
-    # model = BERT(train_length=train.cardinality().numpy(), epochs=EPOCHS, reset_weights=False)
+    train, val, test = ds.std_IMDB(batch_size=BATCH_SIZE)
 
-    # history = model.fit(x=train,
-    #                 validation_data=val,
-    #                 epochs=EPOCHS)
-    
-    # with open('weights/bert_pre.pickle', 'wb') as f:
-    #     pickle.dump(model.get_weights(), f)
+    for model_name in routine:
+        if model_name == 'scratch':
+            init_weights = True
+            callbacks = []
+        else:
+            callbacks=[callback]
+            init_weights= False
 
-    # plot_history(history, 'bert_pre_trained.png')
+        model = BERT(
+            train_length=train.cardinality().numpy(),
+            epochs=EPOCHS,
+            init_weights=init_weights, 
+            init_lr=INIT_LR,
+            warmup = WARMUP, 
+            l2_lambda=L2_LAMBDA, 
+            w_mean=W_MEAN, 
+            w_std=W_STD)
 
-    model = BERT(train_length=train.cardinality().numpy(), epochs=EPOCHS, reset_weights=True)
+        print("\nINFO: Beginning training...\n")
+        start = time.time()
 
-    history = model.fit(x=train,
-                    validation_data=val,
-                    epochs=EPOCHS)
+        history = model.fit(
+            x=train,
+            validation_data=val,
+            epochs=EPOCHS,
+            callbacks=callbacks)
 
-    with open('weights/bert_scratch.pickle', 'wb') as f:
-        pickle.dump(model.get_weights(), f)
+        end = time.time()
 
-    plot_history(history, 'bert_scratch.png')                    
+        print("INFO: Training took {} seconds".format(end - start))
+
+        if save_weights:
+            with open('weights/bert_{}.pickle'.format(model_name), 'wb') as f:
+                pickle.dump(model.get_weights(), f)
+
+        if save_plot:
+            plot_history(history, 'bert_scratch.png')
+
+        result = model.evaluate(test)
+
+        print("INFO: Model evaluation on test data: {}".format(result))
 
 main()

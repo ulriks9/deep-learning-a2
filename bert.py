@@ -10,10 +10,11 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 from load_data import *
+from data import *
 
 tf.get_logger().setLevel('ERROR')
 
-INIT_RANDOMLY = False
+INIT_RANDOMLY = True
 
 #small bert
 tfhub_handle_encoder = 'https://tfhub.dev/tensorflow/small_bert/bert_en_uncased_L-2_H-128_A-2/1'
@@ -44,11 +45,12 @@ if INIT_RANDOMLY:
   reset_model(classifier_model)
 
 #train
-train_ds, test_ds = load_data(batch_size = 32)
+ds = DataSets()
+train_ds, test_ds = ds.IMDB(batch_size=32)
 classifier_model.compile(optimizer='adam',
                          loss= tf.keras.losses.BinaryCrossentropy(from_logits=True),
                          metrics= tf.metrics.BinaryAccuracy())
-history = classifier_model.fit(x=train_ds,validation_data=test_ds, epochs=10)
+history = classifier_model.fit(x=train_ds,validation_data=test_ds, epochs=100)
 
 #evaluation
 loss, accuracy = classifier_model.evaluate(test_ds)

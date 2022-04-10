@@ -19,9 +19,11 @@ class DataSets:
             else:
                 os.mkdir("datasets")
 
-            dataset = get_file('aclImdb_v1.tar.gz', url,
-                                  untar=True, cache_dir=self.directory,
-                                  cache_subdir='')
+            dataset = get_file(
+                'aclImdb_v1.tar.gz', url,
+                untar=True, cache_dir=self.directory,
+                cache_subdir='')
+
             dataset_dir = os.path.join(os.path.dirname(dataset), 'aclImdb')
             train_dir = os.path.join(dataset_dir, 'train')
             remove_dir = os.path.join(train_dir, 'unsup')
