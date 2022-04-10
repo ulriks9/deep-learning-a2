@@ -22,7 +22,7 @@ PATIENCE = 2
 # 'pre' to fine-tune pre-trained model.
 # 'pred_scratch' to evaluate predictions of model from scratch.
 # 'pred_pre' to evaluate predictions of pre-trained model.
-routine = ['pre', 'pred_pre', 'pred_pre']
+routine = ['pred_pre', 'pred_scratch']
 
 # Will overwrite previously saved objects.
 save_weights = False
